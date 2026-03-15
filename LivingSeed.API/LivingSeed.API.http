@@ -1,0 +1,6 @@
+@LivingSeed.API_HostAddress = http://localhost:5240
+
+GET {{LivingSeed.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

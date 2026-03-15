@@ -1,0 +1,58 @@
+﻿@page "/"
+@using LivingSeed.Web.DTOs
+@inject HttpClient Http
+
+<PageTitle>LivingSeed - Vitrine</PageTitle>
+
+<h1>🌱 Vitrine de Projetos Sustentáveis</h1>
+<hr />
+
+@if (projetos == null)
+{
+    <p><em>Carregando sementes... Aguarde!</em></p>
+}
+else if (projetos.Count == 0)
+{
+    <p>Nenhum projeto encontrado. Seja o primeiro a plantar uma ideia!</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var p in projetos)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">@p.NomeCategoria</span>
+                        <h5 class="card-title fw-bold">@p.Titulo</h5>
+                        <p class="card-text">@p.Descricao</p>
+
+                    </div>
+                    <div class="card-footer bg-white">
+                        <p class="text-success fw-bold mb-0">Meta: R$ @p.MetaValor</p>
+                        <small class="text-muted">Por: @p.NomeEmpreendedor</small>
+                        <br />
+                        <button class="btn btn-outline-success mt-2 w-100">Tenho Interesse</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    // Aqui embaixo fica a lógica do C#!
+
+    // Variável que vai guardar a lista de projetos que vier da API
+    private List<ProjetoRetornoDTO>? projetos;
+
+    // Esse método roda automaticamente assim que o usuário entra na página
+    protected override async Task OnInitializedAsync()
+    {
+        // ATENÇÃO: Nós vamos precisar trocar essa URL pela porta correta da sua API no próximo passo!
+        var urlDaApi = "https://localhost:7215/api/Projetos";
+
+        // O Telefone liga para a API e já traduz o JSON para a nossa lista de DTOs
+        projetos = await Http.GetFromJsonAsync<List<ProjetoRetornoDTO>>(urlDaApi);
+    }
+}
