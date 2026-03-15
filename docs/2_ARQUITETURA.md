@@ -1,56 +1,63 @@
-# 🏛️ Arquitetura da Plataforma Living Seed
+# Arquitetura do Projeto: LivingSeed 🌱
 
-## 1. Introdução
+Este documento descreve a arquitetura, as tecnologias e os padrões de projeto adotados no desenvolvimento da plataforma **LivingSeed**.
 
-Este documento descreve a arquitetura técnica da plataforma Living Seed. O objetivo é fornecer uma visão geral das tecnologias, componentes principais e fluxos de dados que guiarão o desenvolvimento e a evolução do sistema. A arquitetura foi projetada com foco em escalabilidade, segurança e manutenibilidade.
+## 🏗️ Visão Geral
 
-## 2. Tech Stack (Pilha de Tecnologias)
+A solução foi projetada com uma arquitetura **API-First**, garantindo que o backend e o frontend sejam completamente desacoplados. Essa separação de responsabilidades permite maior escalabilidade, facilidade de manutenção e segurança na comunicação dos dados.
 
-A plataforma será construída utilizando uma pilha de tecnologias moderna, baseada em JavaScript/TypeScript, para garantir um desenvolvimento coeso e eficiente.
+A solução principal é dividida em dois projetos centrais:
+1. **LivingSeed.API**: Backend responsável pelas regras de negócio e persistência de dados.
+2. **LivingSeed.Web**: Frontend interativo para a experiência do usuário.
 
-* **Front-end:** **React (Next.js)**
-    * **Linguagem:** TypeScript
-    * **Por quê?** Next.js oferece renderização do lado do servidor (SSR) e geração de sites estáticos (SSG), o que é excelente para SEO e performance. React possui um ecossistema gigante e facilita a criação de interfaces de usuário reativas e componentizadas.
+---
 
-* **Back-end:** **Node.js (NestJS)**
-    * **Linguagem:** TypeScript
-    * **Por quê?** NestJS é um framework Node.js robusto que impõe uma arquitetura modular e escalável (fortemente inspirado no Angular). Ele simplifica a criação de APIs eficientes e confiáveis, com suporte nativo a TypeScript.
+## 💻 Tecnologias Utilizadas
 
-* **Banco de Dados:** **PostgreSQL**
-    * **Por quê?** Um banco de dados relacional poderoso e confiável, ideal para gerenciar dados estruturados como usuários, projetos e transações. Sua extensibilidade (com PostGIS para dados geográficos, por exemplo) pode ser útil no futuro.
+### Backend (.NET 8.0)
+* **Framework:** ASP.NET Core Web API
+* **ORM:** Entity Framework Core (EF Core)
+* **Banco de Dados:** SQL Server
+* **Linguagem:** C#
 
-* **Autenticação:** **Auth0** ou **NextAuth.js**
-    * **Por quê?** Utilizar um serviço dedicado de autenticação aumenta a segurança e simplifica a implementação de login social (Google, LinkedIn), login com senha e autenticação de dois fatores.
+### Frontend
+* **Framework:** Blazor WebAssembly
+* **Linguagem:** C# / HTML / CSS
+* **Comunicação:** Chamadas HTTP consumindo a REST API
 
-* **Hospedagem & Infraestrutura (Cloud):** **Vercel** (para o Front-end) e **AWS** ou **Google Cloud** (para o Back-end e Banco de Dados)
-    * **Por quê?** Vercel oferece uma integração perfeita com Next.js, facilitando o deploy e a escalabilidade do front-end. A AWS/GCP oferece um ecossistema completo de serviços (RDS para PostgreSQL, EC2/Fargate para o back-end) que garantem a escalabilidade e a segurança da aplicação.
+---
 
-## 3. Visão Geral dos Componentes (Arquitetura de Microsserviços)
+## 📂 Estrutura da Solução
 
-A plataforma será dividida em serviços independentes que se comunicam via API. Isso facilita a manutenção e permite que cada parte do sistema escale de forma independente.
+### 1. Camada de API (Backend)
+O backend foi construído visando a **Separação de Conceitos (Separation of Concerns)**. 
 
-* **Serviço de Identidade (Authentication Service)**
-    * **Responsabilidade:** Gerenciar o cadastro, login e perfis de todos os usuários (Empreendedores, Investidores, Administradores). Lida com senhas, tokens de acesso e dados pessoais.
+* **Controllers:** Responsáveis por receber as requisições HTTP do frontend e retornar as respostas adequadas (ex: status 200 OK, 404 Not Found).
+* **Services / Regras de Negócio:** Onde a lógica principal da aplicação reside.
+* **Acesso a Dados:** Utilização do EF Core para mapear o modelo de domínio (como a entidade principal `Projeto`) para o banco de dados SQL Server, realizando as operações fundamentais de CRUD (Create, Read, Update, Delete).
 
-* **Serviço de Projetos (Projects Service)**
-    * **Responsabilidade:** Lida com todo o ciclo de vida de um projeto: criação, submissão para análise, atualização de status e visualização. Armazena todas as informações do projeto (descrição, métricas de impacto, documentos, etc.).
+### 2. Camada de Apresentação (Frontend)
+O frontend em **Blazor WebAssembly** roda diretamente no navegador do cliente, oferecendo uma experiência de Single Page Application (SPA). Ele se comunica com a `LivingSeed.API` através do `HttpClient` para renderizar as informações na tela de forma dinâmica.
 
-* **Serviço de Análise (Verification Service)**
-    * **Responsabilidade:** O coração da credibilidade da Living Seed. Este serviço implementa as regras e o fluxo de trabalho para a verificação dos critérios de sustentabilidade. Ele se integra ao Serviço de Projetos para atribuir o "Selo Living Seed".
+---
 
-* **Serviço de Conexão (Matching & Messaging Service)**
-    * **Responsabilidade:** Contém a lógica para sugerir projetos a investidores com base em suas teses de investimento. Também gerencia o sistema de mensagens seguras para a comunicação inicial entre as partes.
+## ⚙️ Padrões de Projeto Adotados
 
-* **API Gateway**
-    * **Responsabilidade:** Ponto de entrada único para todas as requisições do front-end. Ele direciona o tráfego para o serviço apropriado, simplificando a comunicação e adicionando uma camada extra de segurança.
+* **DTOs (Data Transfer Objects):** Implementados para garantir que apenas os dados estritamente necessários transitem entre o cliente e a API, evitando o vazamento de informações sensíveis do modelo de banco de dados e otimizando a carga de rede.
+* **Injeção de Dependência (DI):** O .NET nativamente gerencia o ciclo de vida dos serviços e contextos de banco de dados, promovendo um código mais limpo e testável.
 
-## 4. Fluxo de Dados (Exemplo Simplificado)
+---
 
-Para ilustrar como os componentes interagem, vamos analisar o fluxo de um empreendedor cadastrando um novo projeto:
+## 🚀 Como Executar o Projeto Localmente
 
-1.  **Cadastro de Projeto (Front-end):** O empreendedor preenche um formulário no aplicativo React.
-2.  **Requisição à API:** Ao submeter, o front-end envia uma requisição `POST` para o **API Gateway**.
-3.  **Roteamento:** O **API Gateway** verifica o token de autenticação do usuário com o **Serviço de Identidade** e, se válido, encaminha a requisição para o **Serviço de Projetos**.
-4.  **Processamento:** O **Serviço de Projetos** valida os dados recebidos, cria uma nova entrada no banco de dados PostgreSQL com o status "Pendente de Análise" e notifica o **Serviço de Análise**.
-5.  **Análise e Verificação:** O **Serviço de Análise** inicia seu fluxo de trabalho. Uma vez verificado, ele atualiza o status do projeto para "Verificado", permitindo que ele seja visível para os investidores através do **Serviço de Conexão**.
-6.  **Resposta:** Uma resposta de sucesso é enviada de volta pelo mesmo caminho até o front-end, que exibe uma mensagem de confirmação ao usuário.
+### Pré-requisitos
+Antes de começar, você precisará ter instalado em sua máquina:
+* [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) (Express ou Developer)
+* Uma IDE de sua preferência (Visual Studio 2022, VS Code, etc.)
+
+### Passo a Passo
+
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/ssilveiira/LivingSeed.git](https://github.com/ssilveiira/LivingSeed.git)
